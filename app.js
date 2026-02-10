@@ -6,7 +6,7 @@ templateImg.src = "template.png";
 
 // 👉 你的 Apps Script Web App URL
 const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbyYrSZc8OYd6nbDePXlZtGa877Du5eV_cywIs76GPwjo2RuQrEAeBCNZ8ZtPSL_dciZ/exec"
+  "https://script.google.com/macros/s/AKfycbzj_8VKYbibrT_r_be6kjQzoleVl_EPgnV3le4EhMCrQK1zYsVtmNZW3vDaEE8I7YuW/exec"
 
 function generate() {
   const file = document.getElementById("imgInput").files[0];
@@ -98,3 +98,4 @@ async function sendToYou() {
   }
 
 }
+
