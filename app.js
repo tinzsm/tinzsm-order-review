@@ -6,7 +6,7 @@ templateImg.src = "template.png";
 
 // 👉 你的 Apps Script Web App URL
 const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbzkuKk1xaFLs4vc-gl_8hVTtA4Bet7Kr6lXawIFB4XOc8nY6drP_gQ9hUYqcwzP3CmK/exec"
+  "https://script.google.com/macros/s/AKfycbyYrSZc8OYd6nbDePXlZtGa877Du5eV_cywIs76GPwjo2RuQrEAeBCNZ8ZtPSL_dciZ/exec"
 
 function generate() {
   const file = document.getElementById("imgInput").files[0];
@@ -96,4 +96,5 @@ async function sendToYou() {
     alert("上傳失敗，請再試一次");
     console.error(err);
   }
+
 }
