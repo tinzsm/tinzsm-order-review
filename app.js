@@ -82,8 +82,9 @@ function sendToYou() {
     body: JSON.stringify(payload)
   });
 
-  alert("已送出，圖片已上傳至 Google Drive ✅");
+  alert("您的訂單評價已送出，期待再次為您服務!!!");
 }
+
 
 
 
