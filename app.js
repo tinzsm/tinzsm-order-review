@@ -9,66 +9,45 @@ const GOOGLE_SCRIPT_URL =
 
 
 // ===============================
-// 產生圖片（回傳 Promise）
+// 產生圖片（可單獨使用）
 // ===============================
-function generateImage() {
-  return new Promise((resolve, reject) => {
+function generate() {
 
-    const file = document.getElementById("imgInput").files[0];
-    const name = document.getElementById("name").value.trim();
-    const comment = document.getElementById("comment").value.trim();
+  const file = document.getElementById("imgInput").files[0];
+  const name = document.getElementById("name").value.trim();
+  const comment = document.getElementById("comment").value.trim();
 
-    if (!file || !name || !comment) {
-      alert("請填寫完整資料");
-      reject();
-      return;
-    }
+  if (!file || !name || !comment) {
+    alert("請填寫完整資料");
+    return false;
+  }
 
-    const userImg = new Image();
-    userImg.src = URL.createObjectURL(file);
+  const userImg = new Image();
+  userImg.src = URL.createObjectURL(file);
 
-    userImg.onload = () => {
+  userImg.onload = () => {
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // 背景
-      ctx.drawImage(templateImg, 0, 0, 1080, 1920);
+    ctx.drawImage(templateImg, 0, 0, 1080, 1920);
 
-      // 名字
-      ctx.fillStyle = "#000";
-      ctx.font = "bold 34px Arial";
-      ctx.fillText(`顧客：${name}`, 330, 580);
+    ctx.fillStyle = "#000";
+    ctx.font = "bold 34px Arial";
+    ctx.fillText(`顧客：${name}`, 330, 580);
 
-      // 圖片
-      ctx.drawImage(userImg, 290, 620, 500, 500);
+    ctx.drawImage(userImg, 290, 620, 500, 500);
 
-      // 評價
-      ctx.font = "28px Arial";
-      wrapText(
-        ctx,
-        `評價：${comment}`,
-        330,
-        1160,
-        420,
-        40
-      );
+    ctx.font = "28px Arial";
+    wrapText(ctx, `評價：${comment}`, 330, 1160, 420, 40);
+  };
 
-      resolve(); // ✅ 畫完才繼續
-    };
-
-    userImg.onerror = () => {
-      alert("圖片讀取失敗");
-      reject();
-    };
-
-  });
+  return true;
 }
 
 
 // ===============================
-// 文字自動換行
-// ===============================
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+
   let line = "";
 
   for (let char of text) {
@@ -81,38 +60,40 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
       line = testLine;
     }
   }
+
   ctx.fillText(line, x, y);
 }
 
 
 // ===============================
-// 送出評價（自動產圖 + 上傳）
+// 送出評價
 // ===============================
 async function sendToYou() {
 
   const btn = event.target;
   btn.disabled = true;
+  btn.innerText = "上傳中...";
+
+  const ok = generate();
+  if (!ok) {
+    btn.disabled = false;
+    btn.innerText = "送出評價";
+    return;
+  }
+
+  const now = new Date();
+  const fileName =
+    `review_${now.getFullYear()}_${now.getMonth()+1}_${now.getDate()}_${Date.now()}.png`;
+
+  const payload = {
+    image: canvas.toDataURL("image/png"),
+    fileName: fileName
+  };
 
   try {
 
-    // 1️⃣ 先產圖
-    await generateImage();
-
-    // 2️⃣ 產生檔名
-    const now = new Date();
-    const fileName =
-      `review_${now.getFullYear()}_${now.getMonth()+1}_${now.getDate()}_${Date.now()}.png`;
-
-    // 3️⃣ 轉成 base64
-    const imageData = canvas.toDataURL("image/png");
-
-    const payload = {
-      image: imageData,
-      fileName: fileName
-    };
-
-    // 4️⃣ 上傳
-    await fetch(GOOGLE_SCRIPT_URL, {
+    // 🔥 不等待 Google 回應（速度快很多）
+    fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",
       headers: {
         "Content-Type": "text/plain"
@@ -123,8 +104,9 @@ async function sendToYou() {
     alert("您的訂單評價已送出，期待再次為您服務!!!");
 
   } catch (err) {
-    console.log(err);
+    alert("上傳失敗，請稍後再試");
   }
 
   btn.disabled = false;
+  btn.innerText = "送出評價";
 }
